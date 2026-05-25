@@ -61,6 +61,7 @@ dist_volume = geodesic_dist.squeeze().numpy()
 
 # --- 6. Query distance at a target vertex ---
 target_vertex_world = verts[0]
+
 idx_t = voxel_grid.points_to_indices(target_vertex_world.reshape(1, 3))[0]
 tx, ty, tz = idx_t[0], idx_t[1], idx_t[2]
 print(f"Target voxel index: ({tx}, {ty}, {tz}), inside={volume[tx, ty, tz] > 0}")
