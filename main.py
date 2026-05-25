@@ -39,7 +39,7 @@ cost_tensor = torch.from_numpy(cost).unsqueeze(0).unsqueeze(0)  # (1, 1, X, Y, Z
 # --- 4. Place seed at your interior point ---
 interior_point_world = mesh.centroid
 
-seed = np.full_like(volume, np.inf)  # FastGeodis: unset = inf, seed = 0.0
+seed = np.ones_like(volume, dtype=np.float32)  # FastGeodis: non-seed = 1, seed = 0
 idx = voxel_grid.points_to_indices(interior_point_world.reshape(1, 3))[0]
 # trimesh returns (x, y, z) but double-check axis order:
 ix, iy, iz = idx[0], idx[1], idx[2]
@@ -53,7 +53,7 @@ geodesic_dist = FastGeodis.generalised_geodesic3d(
     seed_tensor,
     [pitch, pitch, pitch],
     1e10,   # v  (large = impassable outside)
-    1.0,    # lambda
+    0.5,    # lambda: mix geodesic+euclidean so interior steps cost 0.5*pitch (not 0)
     4,      # n_iters
 )
 
@@ -66,4 +66,4 @@ tx, ty, tz = idx_t[0], idx_t[1], idx_t[2]
 print(f"Target voxel index: ({tx}, {ty}, {tz}), inside={volume[tx, ty, tz] > 0}")
 
 distance = dist_volume[tx, ty, tz]
-print(f"Interior geodesic distance: {distance:.4f}")
+print(f"Interior geodesic distance: {distance:.4f}  (scaled by 0.5; multiply by 2 for true path length)")
